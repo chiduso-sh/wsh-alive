@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-sage: #6B7F5E;
+  --color-sage-light: #8FA07F;
+  --color-sage-pale: #EEF2EB;
+  --color-earth: #A07850;
+  --color-earth-light: #C4A882;
+  --color-cream: #F9F6F0;
+  --color-bark: #3D2E1E;
+  --color-mist: #D4DDD0;
+  --color-warm-white: #FDFAF5;
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Jost', sans-serif;
+}
+
+body {
+  background-color: #FDFAF5;
+  font-family: 'Jost', sans-serif;
+  color: #3D2E1E;
+}
+
+/* Prose styles for blog posts (replaces @tailwindcss/typography) */
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  color: #3D2E1E;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+.prose h1 { font-size: 2.25rem; }
+.prose h2 { font-size: 1.75rem; }
+.prose h3 { font-size: 1.35rem; }
+.prose p {
+  color: #6A5A4A;
+  font-weight: 300;
+  line-height: 1.85;
+  margin-bottom: 1.25rem;
+}
+.prose a { color: #6B7F5E; text-decoration: underline; }
+.prose a:hover { color: #A07850; }
+.prose strong { color: #3D2E1E; font-weight: 500; }
+.prose ul, .prose ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+.prose li { color: #6A5A4A; font-weight: 300; line-height: 1.8; margin-bottom: 0.4rem; }
+.prose blockquote {
+  border-left: 3px solid #D4DDD0;
+  padding-left: 1.25rem;
+  color: #8FA07F;
+  font-style: italic;
+  margin: 1.5rem 0;
+}
+.prose code {
+  background: #EEF2EB;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #3D2E1E;
+}
+.prose pre {
+  background: #3D2E1E;
+  color: #EEF2EB;
+  padding: 1.25rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+}
+.prose hr { border-color: #D4DDD0; margin: 2rem 0; }
+.prose img { border-radius: 8px; margin: 1.5rem 0; width: 100%; }
