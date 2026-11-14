@@ -38,9 +38,9 @@ function validate({ path, body }: ProxyRequest): string | null {
 }
 
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.NEXT_PUBLIC_ENGAGEAI_KEY;
+  const apiKey = process.env.ENGAGEAI_API_KEY;
   if (!apiKey) {
-    console.error("[EngageAI proxy] NEXT_PUBLIC_ENGAGEAI_KEY is not set");
+    console.error("[EngageAI proxy] ENGAGEAI_API_KEY is not set");
     return NextResponse.json({ error: "Assistant unavailable" }, { status: 503 });
   }
 
