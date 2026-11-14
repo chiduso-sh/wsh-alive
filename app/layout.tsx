@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import EngageAIWidget from "@/components/EngageAIWidget";
 import EngageAIChat from "@/components/EngageAIChat";
 
 export const metadata: Metadata = {
@@ -22,7 +21,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="min-h-screen">{children}</main>
         <Footer />
-        <EngageAIWidget />
         <EngageAIChat />
       </body>
     </html>
