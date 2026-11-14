@@ -118,8 +118,10 @@ export default function EngageAIChat() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: name.trim(), email: email.trim() }),
           });
-          if (!res.ok) throw new Error("Subscription failed");
-          return `You're in, ${name.trim()}! The first letter arrives on Sunday 🌿`;
+          const data: { message?: string; error?: string } = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Subscription failed");
+          // Relay the API's own wording (e.g. "check your inbox to confirm" once double opt-in is live).
+          return data.message || `Thanks, ${name.trim()}! You're on the list 🌿`;
         },
       };
       clientRef.current = new EngageAIClient(handlers, sessionId.current, id => { sessionId.current = id; });
