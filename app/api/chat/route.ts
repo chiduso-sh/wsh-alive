@@ -20,10 +20,19 @@ export const maxDuration = 30;
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_MESSAGES = 30;
 const MAX_TEXT_LENGTH = 2000;
-const DEFAULT_MODEL = "gemini-flash-latest";
+// Flash-Lite answers in about a second and handles these tools well; Flash
+// took 6-10 s per step and has a much smaller free-tier quota.
+const DEFAULT_MODEL = "gemini-flash-lite-latest";
 
 function error(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
+}
+
+// Error type and status only. The SDK's default logging prints the request
+// body, which contains the visitor's conversation.
+function logError(err: unknown) {
+  const status = typeof err === "object" && err && "statusCode" in err ? ` ${String(err.statusCode)}` : "";
+  console.error(`[chat] ${err instanceof Error ? err.name : "error"}${status}`);
 }
 
 export async function POST(req: NextRequest) {
@@ -61,7 +70,10 @@ export async function POST(req: NextRequest) {
     toolApproval: { subscribe_user: "user-approval" },
     stopWhen: stepCountIs(4),
     maxOutputTokens: 600,
+    // One retry: on a quota error, more retries only keep the visitor waiting.
+    maxRetries: 1,
     abortSignal: req.signal,
+    onError: ({ error }) => logError(error),
   });
 
   return createUIMessageStreamResponse({
@@ -69,12 +81,7 @@ export async function POST(req: NextRequest) {
       stream: result.stream,
       tools,
       originalMessages: messages,
-      onError: err => {
-        // Status and error type only: never the conversation.
-        const status = typeof err === "object" && err && "statusCode" in err ? ` ${String(err.statusCode)}` : "";
-        console.error(`[chat] ${err instanceof Error ? err.name : "error"}${status}`);
-        return "Sorry, I'm having trouble answering right now. Please try again in a moment.";
-      },
+      onError: () => "Sorry, I'm having trouble answering right now. Please try again in a moment.",
       // Tool errors are SafeToolError messages written for the visitor.
       redactToolErrors: false,
     }),
