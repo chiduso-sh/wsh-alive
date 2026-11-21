@@ -1,20 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PENDING_MESSAGE, requestSubscription } from "@/lib/newsletter/subscribe";
+import { clientIp } from "@/lib/rate-limit";
+
+const MAX_BODY_BYTES = 2 * 1024;
+const PENDING = { status: "pending", message: PENDING_MESSAGE };
+
+function error(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
+}
 
 export async function POST(req: NextRequest) {
-  const { name, email } = await req.json();
+  const raw = await req.text();
+  if (raw.length > MAX_BODY_BYTES) return error("Request too large.", 413);
 
-  if (!name || !email) {
-    return NextResponse.json({ error: "Name and email required" }, { status: 400 });
+  let body: Record<string, unknown>;
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    return error("Invalid request.", 400);
   }
+  if (typeof body !== "object" || body === null) return error("Invalid request.", 400);
 
-  // --- Resend integration (uncomment when ready) ---
-  // const resend = new Resend(process.env.RESEND_API_KEY);
-  // await resend.contacts.create({
-  //   email,
-  //   firstName: name,
-  //   audienceId: process.env.RESEND_AUDIENCE_ID!,
-  // });
+  // Honeypot: the form hides this field from people, so only bots fill it.
+  // Pretend it worked so they don't adapt.
+  if (typeof body.company === "string" && body.company.trim()) return NextResponse.json(PENDING, { status: 202 });
 
-  console.log(`New subscriber: ${name} <${email}>`);
-  return NextResponse.json({ success: true });
+  const result = await requestSubscription(body, clientIp(req));
+  return result.ok ? NextResponse.json(PENDING, { status: 202 }) : error(result.error, result.status);
 }
