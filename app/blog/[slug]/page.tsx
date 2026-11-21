@@ -1,4 +1,5 @@
 import { getPostBySlug, getAllPosts } from "@/lib/posts";
+import { CATEGORIES } from "@/lib/categories";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import type { Metadata } from "next";
@@ -25,13 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const tagStyles: Record<string, string> = {
-  workouts: "text-sage bg-sage-pale",
-  nutrition: "text-earth bg-cream",
-  lifestyle: "text-blue-600 bg-blue-50",
-  mindfulness: "text-purple-600 bg-purple-50",
-};
-
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
@@ -46,8 +40,8 @@ export default async function BlogPostPage({ params }: Props) {
       </Link>
 
       <header className="mb-10">
-        <span className={`text-xs tracking-widest uppercase font-medium px-3 py-1 rounded-full ${tagStyles[meta.category] || "text-sage bg-sage-pale"}`}>
-          {meta.category}
+        <span className={`text-xs tracking-widest uppercase font-medium px-3 py-1 rounded-full ${CATEGORIES[meta.category].tagPill}`}>
+          {CATEGORIES[meta.category].label}
         </span>
         <h1 className="font-serif text-4xl md:text-5xl text-bark leading-tight font-normal mt-4 mb-4">
           {meta.title}

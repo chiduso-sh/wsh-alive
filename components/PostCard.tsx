@@ -1,36 +1,13 @@
-"use client";
 import Link from "next/link";
 import Image from "next/image";
+import type { PostMeta } from "@/lib/posts";
+import { CATEGORIES } from "@/lib/categories";
 
-export type Post = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  date: string;
-  readTime: string;
-  coverImage?: string;
-};
-
-const tagStyles: Record<string, string> = {
-  workouts: "text-sage",
-  nutrition: "text-earth",
-  lifestyle: "text-blue-500",
-  mindfulness: "text-purple-500",
-};
-
-const bgStyles: Record<string, string> = {
-  workouts: "bg-sage-pale",
-  nutrition: "bg-cream",
-  lifestyle: "bg-blue-50",
-  mindfulness: "bg-purple-50",
-};
-
-export default function PostCard({ post, large = false }: { post: Post; large?: boolean }) {
+export default function PostCard({ post, large = false }: { post: PostMeta; large?: boolean }) {
   return (
     <Link href={`/blog/${post.slug}`} className="no-underline group h-full">
       <article className="rounded-xl overflow-hidden border border-mist bg-white h-full flex flex-col transition-transform duration-200 group-hover:-translate-y-1">
-        <div className={`relative flex items-center justify-center ${large ? "h-72" : "h-48"} ${bgStyles[post.category] || "bg-sage-pale"}`}>
+        <div className={`relative flex items-center justify-center ${large ? "h-72" : "h-48"} ${CATEGORIES[post.category].cardBg}`}>
           {post.coverImage ? (
             <Image src={post.coverImage} alt={post.title} fill className="object-cover" />
           ) : (
@@ -45,8 +22,8 @@ export default function PostCard({ post, large = false }: { post: Post; large?: 
           )}
         </div>
         <div className="p-5 flex flex-col flex-1">
-          <span className={`text-xs tracking-widest uppercase font-medium mb-2 ${tagStyles[post.category] || "text-sage"}`}>
-            {post.category}
+          <span className={`text-xs tracking-widest uppercase font-medium mb-2 ${CATEGORIES[post.category].tagText}`}>
+            {CATEGORIES[post.category].label}
           </span>
           <h2 className={`font-serif text-bark leading-snug mb-2 font-normal ${large ? "text-2xl" : "text-lg"}`}>
             {post.title}
