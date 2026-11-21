@@ -1,9 +1,9 @@
 import { getAllPosts } from "@/lib/posts";
+import { siteUrl } from "@/lib/site";
 import type { MetadataRoute } from "next";
 
-const BASE = "https://wshalive.com";
-
 export default function sitemap(): MetadataRoute.Sitemap {
+  const BASE = siteUrl();
   const posts = getAllPosts();
   const postRoutes = posts.map(p => ({
     url: `${BASE}/blog/${p.slug}`,
