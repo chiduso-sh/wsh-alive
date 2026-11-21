@@ -1,8 +1,7 @@
 // Shared by the chat route (tool schemas) and the browser (navigation
 // handler). Contains no secrets.
 
-export const CATEGORIES = ["workouts", "nutrition", "lifestyle", "mindfulness"] as const;
-export type Category = (typeof CATEGORIES)[number];
+export { CATEGORY_SLUGS as CATEGORIES, type Category } from "@/lib/categories";
 
 export const NAV_PATHS = ["/", "/blog", "/workouts", "/nutrition", "/lifestyle", "/mindfulness", "/about", "/subscribe"] as const;
 export type NavPath = (typeof NAV_PATHS)[number];

@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { z } from "zod";
+import { CATEGORY_SLUGS } from "@/lib/categories";
 
 const postsDir = path.join(process.cwd(), "content/posts");
 
@@ -13,7 +14,7 @@ const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const frontmatter = z.object({
   title: z.string().min(1),
   excerpt: z.string().min(1),
-  category: z.string().min(1),
+  category: z.enum(CATEGORY_SLUGS),
   // YAML turns an unquoted 2026-04-22 into a Date; keep it as the same string.
   date: z.preprocess(
     d => (d instanceof Date ? d.toISOString().slice(0, 10) : d),
