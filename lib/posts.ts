@@ -1,41 +1,59 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { z } from "zod";
 
 const postsDir = path.join(process.cwd(), "content/posts");
 
-export type PostMeta = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  date: string;
-  readTime: string;
-  coverImage?: string;
-};
+// Lowercase words joined by single hyphens. Slugs arrive from the URL, so
+// anything else (dots, slashes, backslashes, encoded characters) is rejected
+// before it gets near the filesystem.
+const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+const frontmatter = z.object({
+  title: z.string().min(1),
+  excerpt: z.string().min(1),
+  category: z.string().min(1),
+  // YAML turns an unquoted 2026-04-22 into a Date; keep it as the same string.
+  date: z.preprocess(
+    d => (d instanceof Date ? d.toISOString().slice(0, 10) : d),
+    z.string().refine(d => !Number.isNaN(Date.parse(d)), "must be a date, e.g. 2026-04-22"),
+  ),
+  readTime: z.string().min(1),
+  coverImage: z.string().optional(),
+});
+
+export type PostMeta = z.infer<typeof frontmatter> & { slug: string };
+
+function isValidSlug(slug: string) {
+  return SLUG.test(slug);
+}
+
+// Fails the build with the file name, rather than rendering a broken post.
+function readPost(file: string) {
+  const slug = file.replace(/\.mdx?$/, "");
+  if (!isValidSlug(slug)) throw new Error(`content/posts/${file}: file name must be lowercase words joined by hyphens`);
+
+  const { data, content } = matter(fs.readFileSync(path.join(postsDir, file), "utf-8"));
+  const parsed = frontmatter.safeParse(data);
+  if (!parsed.success) {
+    const issues = parsed.error.issues.map(i => `${i.path.join(".") || "frontmatter"} ${i.message}`).join("; ");
+    throw new Error(`content/posts/${file}: invalid frontmatter: ${issues}`);
+  }
+  return { meta: { slug, ...parsed.data } satisfies PostMeta, content };
+}
 
 export function getAllPosts(categoryFilter?: string): PostMeta[] {
-  const files = fs.readdirSync(postsDir);
-  return files
+  return fs
+    .readdirSync(postsDir)
     .filter(f => f.endsWith(".mdx") || f.endsWith(".md"))
-    .map(file => {
-      const slug = file.replace(/\.mdx?$/, "");
-      const raw = fs.readFileSync(path.join(postsDir, file), "utf-8");
-      const { data } = matter(raw);
-      return { slug, ...data } as PostMeta;
-    })
+    .map(file => readPost(file).meta)
     .filter(p => !categoryFilter || p.category === categoryFilter)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
 }
 
 export function getPostBySlug(slug: string) {
-  const filePath = [".mdx", ".md"]
-    .map(ext => path.join(postsDir, slug + ext))
-    .find(p => fs.existsSync(p));
-
-  if (!filePath) return null;
-
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const { data, content } = matter(raw);
-  return { meta: { slug, ...data } as PostMeta, content };
+  if (!isValidSlug(slug)) return null;
+  const file = [".mdx", ".md"].map(ext => slug + ext).find(f => fs.existsSync(path.join(postsDir, f)));
+  return file ? readPost(file) : null;
 }
