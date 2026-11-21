@@ -6,6 +6,10 @@ import Link from "next/link";
 
 type Props = { params: Promise<{ slug: string }> };
 
+// Only the posts found at build time exist; any other slug is a 404 without
+// touching the filesystem.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return getAllPosts().map(p => ({ slug: p.slug }));
 }
