@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import EngageAIWidget from "@/components/EngageAIWidget";
-import EngageAIChat from "@/components/EngageAIChat";
+import AssistantChat from "@/components/AssistantChat";
 
 export const metadata: Metadata = {
   title: { default: "WSH Alive", template: "%s | WSH Alive" },
@@ -22,8 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="min-h-screen">{children}</main>
         <Footer />
-        <EngageAIWidget />
-        <EngageAIChat />
+        <AssistantChat />
       </body>
     </html>
   );
